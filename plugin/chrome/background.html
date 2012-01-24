@@ -1,0 +1,78 @@
+<html>
+	<head>
+	<script type="text/javascript" src="socket.io.js"></script>
+	<script>
+		console.log("Background");
+		
+		(new function() {
+			var socket;
+			
+			function connect() {
+				console.log("Connect..");
+				
+				socket = io.connect('http://192.168.1.114:8000');
+				socket.on('request', onRequestFromServer);
+				socket.on('results', onResultsFromServer);
+			}
+			
+			function initializeListeners() {
+				console.log("Initialize Listeners");
+
+				chrome.webNavigation.onBeforeNavigate.addListener(onBeforeNavigate);
+				chrome.webNavigation.onCompleted.addListener(onCompletedNavigate);
+				chrome.extension.onRequest.addListener(onHiddenWindowMessage);
+			}
+			
+			function onBeforeNavigate(details) {
+				console.log("Navigating to " + details.url);
+			}
+
+			function onCompletedNavigate(details) {
+				console.log(details);
+				
+				if (/\/\/www\.google\.com\/search\?/.test(details.url)) {
+					if (/ggg=hidden/.test(details.url)) {
+						console.log("Will inject..");
+						console.log(details);
+						chrome.tabs.executeScript(details.tabId, { file:"inspect-results.js" });
+					}
+					else {
+						console.log("Sending request to server");
+						socket.emit('request', details.url);
+					}
+				}
+			}
+			
+			function onRequestFromServer(url,id) {
+				url = url + '&ggg=hidden&sid=' + id;
+				
+				console.log("Loading "+url);
+				chrome.windows.create({ 'url':url, 'width':100, 'height':100, 
+					'top':1, 'left':1, 'focused':false, type:'popup' });
+			}
+			
+			function onHiddenWindowMessage(details) {
+				console.log("Got a message from the hidden window.  cmd="+details.cmd);
+				console.log(details);
+				
+				if (details.cmd == "results") {
+					console.log("Sending " + details);
+					socket.emit('results', details);
+				}
+			}
+			
+			function onResultsFromServer(results) {
+				console.log("Got results!");
+				console.log(results);
+			}
+
+			initializeListeners();
+			connect();
+			
+			console.log("Constructor");
+		}());
+	</script>
+	</head>
+	<body>
+		<iframe id='frame'></iframe>
+</html>

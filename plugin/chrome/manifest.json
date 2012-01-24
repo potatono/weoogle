@@ -1,0 +1,13 @@
+{
+  "name": "Weoogle",
+  "version": "1.0",
+  "description": "Search Google from many browsers at once",
+  "background_page": "background.html",
+  "permissions": [
+    "http://*.google.com/",
+    "https://*.google.com/",
+	"background",
+	"webNavigation",
+	"tabs"
+  ]
+}

@@ -1,0 +1,20 @@
+This is a simple proof of concept project to attempt to depersonalize
+Google searches by aggregating personalized results.  
+
+1. Fred, Mary and John have the weoogle Chrome extension installed and
+all three of them are connected to the weoogle service via WebSocket.
+
+2. Fred searches for "Egypt" on Google.  The weoogle extension catches
+this and forwards the request to the weoogle service.
+
+3. The weoogle services broadcasts the search request for "Egypt".
+
+4. Mary and John peform searches for "Egypt" in the background and
+forward anonymized (TODO) results back to the weoogle service.
+
+5. The weoogle services returns the aggregated results to Fred.
+
+6. Fred's weoogle Chrome extension integrates the aggregated results
+into the Google search DOM. (TODO)
+
+
